@@ -45,11 +45,16 @@ void loop()
     
     Serial.setTimeout(20000L);          // Wait 20 seconds as a timeout.
     Serial.println();
-    Serial.println(F("Would you like to write or read data? (Type W/R followed by # sign.)"));
+    Serial.println(F("Place the card on the scanner and type 'S' or 's' followed by the # sign."));
     returnedSize = Serial.readBytesUntil('#', answer, 2);
 
-    if (answer[0] == 'R' || answer[0] == 'r' || answer[0] == 'W' || answer[0] == 'w')
+    if (answer[0] == 'S' || answer[0] == 's')
       isAnswered = true;
+    else
+    {
+      Serial.println(F("You have not selected and answer, or input your answer incorrectly. Please try again."));
+      Serial.println();
+    }
   }
 
   /* Test if card is still there. */
@@ -78,36 +83,7 @@ void loop()
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   Serial.println(rfid.PICC_GetTypeName(piccType));
 
-  if (answer[0] == 'w' || answer[0] == 'W')
-  {
-    /* Define constant variables and buffers. */
-    uint8_t const blockAddress = 5;   // Block address for writing function.
-    uint8_t const numBytes = 32;      // Number of characters to write.
-    uint8_t length = numBytes;        // Modifiable number of bytes.
-    byte buffer[numBytes];            // Buffer for serial input.
-
-    /* Write prompting and get input. */
-    Serial.println();   // Make newline before prompting terminal.
-    Serial.println(F("Input the desired data string below, ending with a # sign. (Max 30 characters)"));   // Prompt user.
-    length = Serial.readBytesUntil('#', buffer, numBytes);    // Read information into buffer.
-
-    /* Print received data. */
-    Serial.println(F("Data that you are writing: "));
-    for (uint8_t i = 0; i < numBytes; i++)
-      Serial.write(buffer[i]);
-    Serial.println();
-
-    /* Write data and confirm status of write. */
-    MFRC522::StatusCode status = rfid.MIFARE_Write(blockAddress, buffer, length);  // Write to card.
-
-    if (status == MFRC522::StatusCode::STATUS_OK)
-      Serial.println(F("Writing successful. Read card to check data."));
-    else
-      Serial.println(F("Writing failure. Check card placement and try again."));
-
-    Serial.println();   // Print newline at end of function.    
-  }
-  else if (answer[0] == 'r' || answer[0] == 'R')
+  if (answer[0] == 'S' || answer[0] == 's')
   {
     /* Create constant variables and buffers and read data (32 bytes). */
     uint8_t const blockAddress = 5;     // Data block address we are reading from.
@@ -135,13 +111,13 @@ void loop()
       Serial.println();
     }
     else
-      Serial.println(F("Error reading card, check placement and try again."));
+      Serial.println(F("Error reading card data, check placement and try again, or card data does not exist (on block 5 with 32 bytes)."));
 
     Serial.println();   // Newline for reads.
   }
   else
   {
-    Serial.println(F("ERROR IN READ/WRITE QUESTION!"));
+    Serial.println(F("ERROR IN PROMPT RESPONSE CHECKING!"));
     Serial.println(F("Did you write a valid value?"));
     Serial.println();
   }
