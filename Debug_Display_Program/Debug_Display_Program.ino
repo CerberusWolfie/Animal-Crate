@@ -33,6 +33,7 @@ void setup()
   SPI.begin();                                      // Initialization for the SPI bus for slave devices.
   rfid.PCD_Init();                                  // Initialization for the RC522 module.
   Serial.println();                                 // Clear the line for beginning of serial output.
+  Serial.println();                                 // Add an additional cleared line for cleanliness.
   Serial.println(F("<RC522 Successfully Setup>"));  // Display initialization success for RC522 to serial window.
 
   pinMode(BUTTON_PIN, INPUT);                 // Set button pin for input data.
@@ -46,9 +47,10 @@ void setup()
   Serial.println(F("<TFT ST7735 Successfully Setup>"));             // Display initialization success for TFT ST7735 to serial window.
 
   /* Confirmations for data, display in terminal. */
-  Serial.println(F("<Program Successful Setup>"));                                  // State success of program setting up.
-  Serial.println(F("This program is intended to scan Mifare Ultralight Cards."));   // Specify acceptable card types in serial window.
-  Serial.println(F("Scan PICC to see data as follows: UID and PICC Type"));         // Give directions in Serial Window for what to scan.
+  Serial.println(F("<Program Successfully Setup>"));                                  // State success of program setting up.
+  Serial.println(F("This program is intended to scan Mifare Ultralight Cards."));     // Specify acceptable card types in serial window.
+  Serial.println(F("Scan card to see data as follows: UID and PICC Type."));           // Give directions in Serial Window for what to scan.
+  Serial.println();
 }
 
 void loop()
@@ -67,13 +69,15 @@ void loop()
   /* Test if card is still there. */
   if (!rfid.PICC_IsNewCardPresent())     // Check if the card is present. If this fails, return to start of loop.
   {
-    Serial.println(F("Take card away from sensor and replace."));
+    Serial.println(F("Take card away from sensor and replace. (Delaying 1000 ms)"));
+    delay(1000);
     return;
   }
   
   if (!rfid.PICC_ReadCardSerial())       // Verify a successful read. If this fails, return to start of loop.
   {
-    Serial.println(F("Card Read Failure, please try again."));
+    Serial.println(F("Card Read Failure, please try again. (Delaying 1000 ms)"));
+    delay(1000);
     return;
   }
 
