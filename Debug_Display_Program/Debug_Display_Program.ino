@@ -86,6 +86,7 @@ void loop()
   }
 
   resetAll();
+  convertByte(rfid.uid.uidByte, rfid.uid.size);
 
   /* Print Card UID in HEX */
   Serial.print(F("Card UID (Hex):"));
@@ -95,7 +96,7 @@ void loop()
   /* Display Card UID in HEX */
   drawTextAt(0, 0, "Card UID (HEX):", ST77XX_WHITE);
   for (uint8_t i = 0; i < rfid.uid.size; i++)
-    drawTextAt(5 * i, 10, &uid[i], ST77XX_YELLOW);
+    drawTextAt(8 * i, 10, &uid[i], ST77XX_YELLOW);
 
   /* Print Card UID in DEC */
   Serial.print(F("Card UID (Dec):"));
