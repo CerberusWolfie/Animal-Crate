@@ -4,6 +4,8 @@
 /*                                                    */
 /*                                                    */
 /* PURPOSE: To read MiFare Ultralight Cards           */
+/* and display the information on the ST7735          */
+/* LED display from Adafruit.                         */
 /* -------------------------------------------------- */
 
 /* Library Includes */
@@ -14,23 +16,31 @@
 #include <Adafruit_ST7735.h>  // Hardware-specific library for TFT ST7735 displays from Adafruit.
 
 /* Definitions for Pins */
-#define RC522_SS_SDA_PIN 5    // SS/SDA Pin Location for RC522
-#define RC522_RST_PIN 0       // RST Pin Location for RC522
+#define RC522_SS_PIN      5   // SS/SDA Pin Location for RC522
+#define RC522_RST_PIN     0   // RST Pin Location for RC522
+#define ST7735_SS_PIN     21  // SS/SDA Pin Location for TFT ST7735 (TST_CS)
+#define ST7735_DC_PIN     22  // DC Pin Location for TFT ST7735 (D/C)
+#define ST7735_RST_PIN    2   // RST Pin Location for TFT ST7735
 
-
-MFRC522 rfid(RC522_SS_SDA_PIN, RC522_RST_PIN);  // Creating class for the reader.
+Adafruit_ST7735 led = Adafruit_ST7735(ST7735_SS_PIN, ST7735_DC_PIN, ST7735_RST_PIN);  // Creating class for TFT ST7735 Display
+MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 Module
 
 void setup()
 {
-  Serial.begin(9600);   // Initialize the serial communication with the main device.
-  SPI.begin();          // Initialization for the SPI bus.
-  rfid.PCD_Init();      // Initialization for the MFRC522 components.
+  Serial.begin(9600);                               // Initialize the serial communication with the computer.
+  SPI.begin();                                      // Initialization for the SPI bus for slave devices.
+  rfid.PCD_Init();                                  // Initialization for the RC522 module.
+  Serial.println();                                 // Clear the line for beginning of serial output.
+  Serial.println(F("<RC522 Successfully Setup>"));  // Display initialization success for RC522 to serial window.
+
+  led.initR(INITR_BLACKTAB);                              // Initializion for the TFT ST7735 display.
+  led.fillScreen(ST77XX_BLACK);                           // Set the TFT ST7735 display to full black.
+  Serial.println(F("<TFT ST7735 Successfully Setup>"));   // Display initialization success for TFT ST7735 to serial window.
 
   /* Confirmations for data, display in terminal. */
-  Serial.println();                                                                     // Clear the line.
-  Serial.println(F("<Program Successful Setup>"));                                      // State success.
-  Serial.println(F("This program is intended to scan Mifare Ultralight Cards."));       // Specify acceptable card types.
-  Serial.println(F("Scan PICC to see data as follows: UID, type, and data blocks."));   // Give directions in Serial Window.
+  Serial.println(F("<Program Successful Setup>"));                                  // State success of program setting up.
+  Serial.println(F("This program is intended to scan Mifare Ultralight Cards."));   // Specify acceptable card types in serial window.
+  Serial.println(F("Scan PICC to see data as follows: UID and PICC Type"));         // Give directions in Serial Window for what to scan.
 }
 
 void loop()
