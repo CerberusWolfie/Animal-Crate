@@ -95,26 +95,21 @@ void loop()
 
   /* Display Card UID in HEX */
   drawTextAt(0, 0, "Card UID (HEX):", ST77XX_WHITE);
-  for (uint8_t i = 0; i < rfid.uid.size; i++)
-    drawTextAt(8 * i, 10, &uid[i], ST77XX_YELLOW);
+  drawTextAt(0, 10, uid, ST77XX_YELLOW);
 
   /* Print Card UID in DEC */
   Serial.print(F("Card UID (Dec):"));
   printDec(rfid.uid.uidByte, rfid.uid.size);  // Print in DEC
   Serial.println();
 
-  /* Print Card UID in DEC */
-  drawTextAt(0, 30, "Card UID (DEC):", ST77XX_WHITE);
-  for (uint8_t i = 0; i < rfid.uid.size; i++)
-    drawTextAt(5 * i, 40, &uid[i], ST77XX_YELLOW);
-
   /* Read Card PICC Type and print and display. */
   Serial.print(F("PICC Type: "));
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   Serial.println(rfid.PICC_GetTypeName(piccType));
-  drawTextAt(0, 70, "Card PICC Type:", ST77XX_WHITE);
-  drawTextAt(0, 80, (char*)rfid.PICC_GetTypeName(piccType), ST77XX_YELLOW);
+  drawTextAt(0, 30, "Card PICC Type:", ST77XX_WHITE);
+  drawTextAt(0, 40, (char*)rfid.PICC_GetTypeName(piccType), ST77XX_YELLOW);
 
+  /* Create delay to prevent multiple readings. */
   delay(2000);                // Delay 2 seconds after reading information to prevent reads again.
   isButtonPressed = false;    // Default the button back to not pressed.
 }
