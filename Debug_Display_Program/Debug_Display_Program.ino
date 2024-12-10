@@ -33,9 +33,10 @@ void setup()
   Serial.println();                                 // Clear the line for beginning of serial output.
   Serial.println(F("<RC522 Successfully Setup>"));  // Display initialization success for RC522 to serial window.
 
-  led.initR(INITR_BLACKTAB);                              // Initializion for the TFT ST7735 display.
-  led.fillScreen(ST77XX_BLACK);                           // Set the TFT ST7735 display to full black.
-  Serial.println(F("<TFT ST7735 Successfully Setup>"));   // Display initialization success for TFT ST7735 to serial window.
+  led.initR(INITR_BLACKTAB);                                        // Initializion for the TFT ST7735 display.
+  led.fillScreen(ST77XX_BLACK);                                     // Set the TFT ST7735 display to full black.
+  led.drawTextAt(0, 0, "Press the button to scan.", ST77XX_WHITE);  // Display starting prompt to TFT ST7735 display.
+  Serial.println(F("<TFT ST7735 Successfully Setup>"));             // Display initialization success for TFT ST7735 to serial window.
 
   /* Confirmations for data, display in terminal. */
   Serial.println(F("<Program Successful Setup>"));                                  // State success of program setting up.
