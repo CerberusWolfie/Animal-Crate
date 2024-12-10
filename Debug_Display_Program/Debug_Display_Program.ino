@@ -26,7 +26,7 @@
 Adafruit_ST7735 led = Adafruit_ST7735(ST7735_SS_PIN, ST7735_DC_PIN, ST7735_RST_PIN);  // Creating class for TFT ST7735 Display
 MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 Module
 bool isButtonPressed = 0;                                                             // Create a boolean for whether the button is pressed.
-char uid[32];                                                                         // Create a 32 byte array for UID (well over what it needs).
+char uid[10];                                                                         // Create a 32 byte array for UID (well over what it needs).
 
 void setup()
 {
@@ -53,8 +53,8 @@ void setup()
   Serial.println(F("Scan card to see data as follows: UID and PICC Type."));          // Give directions in Serial Window for what to scan.
   Serial.println();                                                                   // Add another clear line for cleanliness.
 
-  for (uint8_t i; i < 32; i++)
-    uid[i] = NULL;
+  for (uint8_t i = 0; i < 10; i++)  // Set default values to 0.
+    uid[i] = 0;
 }
 
 void loop()
@@ -86,20 +86,35 @@ void loop()
   }
 
   resetAll();
+  for (uint8_t i = 0; i < rfid.uid.size; i++)
+    uid[i] = (char)rfid.uid.uidByte[i];
 
-  /* Read Card UID and print. */
+  /* Print Card UID in HEX */
   Serial.print(F("Card UID (Hex):"));
   printHex(rfid.uid.uidByte, rfid.uid.size);  // Print in HEX
   Serial.println();
 
+  /* Display Card UID in HEX */
+  drawTextAt(0, 0, "Card UID (HEX):", ST77XX_WHITE);
+  for (uint8_t i = 0; i < rfid.uid.size; i++)
+    drawTextAt(5 * i, 10, &uid[i], ST77XX_YELLOW);
+
+  /* Print Card UID in DEC */
   Serial.print(F("Card UID (Dec):"));
   printDec(rfid.uid.uidByte, rfid.uid.size);  // Print in DEC
   Serial.println();
 
-  /* Read Card PICC Type and print. */
+  /* Print Card UID in DEC */
+  drawTextAt(0, 30, "Card UID (DEC):", ST77XX_WHITE);
+  for (uint8_t i = 0; i < rfid.uid.size; i++)
+    drawTextAt(5 * i, 40, &uid[i], ST77XX_YELLOW);
+
+  /* Read Card PICC Type and print and display. */
   Serial.print(F("PICC Type: "));
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   Serial.println(rfid.PICC_GetTypeName(piccType));
+  drawTextAt(0, 70, "Card PICC Type:", ST77XX_WHITE);
+  drawTextAt(0, 80, (char*)rfid.PICC_GetTypeName(piccType), ST77XX_YELLOW);
 
   delay(2000);                // Delay 2 seconds after reading information to prevent reads again.
   isButtonPressed = false;    // Default the button back to not pressed.
