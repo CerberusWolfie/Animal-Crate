@@ -45,30 +45,6 @@ void setup()
 
 void loop()
 {
-  /* Setup a question function for reading or writing data. */
-  char answer[2];           // Define character for the answer selection.
-  bool isAnswered = false;  // Define boolean for exiting while loop.
-  uint8_t returnedSize;    // Define a return int for readBytesUntil.
-
-  while (!isAnswered)
-  {
-    for (uint8_t i = 0; i < 2; i++)     // Clear answer out.
-      answer[i] = NULL;
-    
-    Serial.setTimeout(20000L);          // Wait 20 seconds as a timeout.
-    Serial.println();
-    Serial.println(F("Place the card on the scanner and type 'S' or 's' followed by the # sign."));
-    returnedSize = Serial.readBytesUntil('#', answer, 2);
-
-    if (answer[0] == 'S' || answer[0] == 's')
-      isAnswered = true;
-    else
-    {
-      Serial.println(F("You have not selected and answer, or input your answer incorrectly. Please try again."));
-      Serial.println();
-    }
-  }
-
   /* Test if card is still there. */
   if (!rfid.PICC_IsNewCardPresent())     // Check if the card is present. If this fails, return to start of loop.
   {
@@ -95,47 +71,49 @@ void loop()
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   Serial.println(rfid.PICC_GetTypeName(piccType));
 
-  if (answer[0] == 'S' || answer[0] == 's')
-  {
-    /* Create constant variables and buffers and read data (32 bytes). */
-    uint8_t const blockAddress = 5;     // Data block address we are reading from.
-    uint8_t const numBytes = 32;        // Number of bytes to read.
-    uint8_t length = numBytes;          // Non-constant size.
-    byte data[numBytes];                // Data array as character.
-    MFRC522::StatusCode status = rfid.MIFARE_Read(blockAddress, data, &length);   // Read values into data array.
 
-    /* Confirm status of read, if successful, print information. */
-    if (status == MFRC522::StatusCode::STATUS_OK)
-    {
-      Serial.print("Reading Data: ");
-
-      for (uint8_t i; i < numBytes; i++)    // For the entire length of the character array.
-        if (data[i] != NULL)                // If the data is valid, then write the data.
-          Serial.write(data[i]);
-      Serial.println();
-
-      /* For Debug Purposes */
-      Serial.print(F("Data Retrieved (Hex): "));
-      printHex(data, numBytes);
-      Serial.println();
-      Serial.print(F("Data Retrieved (Dec): "));
-      printDec(data, numBytes);
-      Serial.println();
-    }
-    else
-      Serial.println(F("Error reading card data, check placement and try again, or card data does not exist (on block 5 with 32 bytes)."));
-
-    Serial.println();   // Newline for reads.
-  }
-  else
-  {
-    Serial.println(F("ERROR IN PROMPT RESPONSE CHECKING!"));
-    Serial.println(F("Did you write a valid value?"));
-    Serial.println();
-  }
 }
 
-/* Functions for dumping information. */
+/* Functions for displaying text and/or shapes to the TFT ST7735 Display. */
+/* ------------------------------ */
+/* drawTextAt - print text to tft */
+/* display screen at specific     */
+/* cursor with textwrap and color */
+/* decided by parameters.         */
+/* ------------------------------ */
+void drawTextAt(uint8_t x, uint8_t y, char *text, uint16_t color)
+{
+  led.setCursor(x, y);
+  led.setTextColor(color);
+  led.setTextWrap(true);
+  led.print(text);
+}
+
+/* ------------------------------ */
+/* resetAll - reset cursor to     */
+/* origin (0, 0) and set entire   */
+/* screen to white, delay for 500 */
+/* milliseconds and then set to   */
+/* black and print to Serial that */
+/* the screen has been reset.     */
+/* ------------------------------ */
+void resetAll()
+{
+  led.setCursor(0, 0);
+  led.setTextColor(ST77XX_WHITE);
+  led.fillScreen(ST77XX_WHITE);
+  delay(500);
+  led.fillScreen(ST77XX_BLACK);
+  Serial.println(F("TFT ST7735 has been reset."));
+}
+
+/* Functions for dumping information from byte arrays, specifically for RC522 module. */
+/* ------------------------------ */
+/* printHex - print to serial     */
+/* window the bytes from a buffer */
+/* with spaces for each byte in   */
+/* HEXadecimal format.            */
+/* ------------------------------ */
 void printHex(byte *buffer, byte bufferSize)            // Print information in Hex.
 {
   for (uint8_t i = 0; i < bufferSize; i++) 
@@ -146,6 +124,12 @@ void printHex(byte *buffer, byte bufferSize)            // Print information in 
     }
 }
 
+/* ------------------------------ */
+/* printDec - print to serial     */
+/* window the bytes from a buffer */
+/* with spaces for each byte in   */
+/* DECimal format.                */
+/* ------------------------------ */
 void printDec(byte *buffer, byte bufferSize)            // Print information in Dec.
 {
   for (uint8_t i = 0; i < bufferSize; i++)
