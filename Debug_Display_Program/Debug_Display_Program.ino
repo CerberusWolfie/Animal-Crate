@@ -109,6 +109,11 @@ void loop()
   drawTextAt(0, 30, "Card PICC Type:", ST77XX_WHITE);
   drawTextAt(0, 40, (char*)rfid.PICC_GetTypeName(piccType), ST77XX_YELLOW);
 
+  /* Create Prompt for Continuous Use */
+  drawTextAt(0, 70, "Press and hold", ST77XX_WHITE);
+  drawTextAt(0, 80, "button to scan", ST77XX_WHITE);
+  drawTextAt(0, 90, "another card.", ST77XX_WHITE);
+
   /* Create delay to prevent multiple readings. */
   delay(2000);                // Delay 2 seconds after reading information to prevent reads again.
   isButtonPressed = false;    // Default the button back to not pressed.
