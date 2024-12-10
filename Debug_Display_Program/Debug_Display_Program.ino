@@ -87,7 +87,11 @@ void loop()
 
   resetAll();
   for (uint8_t i = 0; i < rfid.uid.size; i++)
-    uid[i] = (char)rfid.uid.uidByte[i];
+    uid[i] = (char)&rfid.uid.uidByte[i];
+  // DEBUG CODE
+  Serial.println();
+  for (uint8_t i = 0; i < rfid.uid.size; i++)
+    Serial.print(uid[i]);
 
   /* Print Card UID in HEX */
   Serial.print(F("Card UID (Hex):"));
