@@ -26,6 +26,7 @@
 Adafruit_ST7735 led = Adafruit_ST7735(ST7735_SS_PIN, ST7735_DC_PIN, ST7735_RST_PIN);  // Creating class for TFT ST7735 Display
 MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 Module
 bool isButtonPressed = 0;                                                             // Create a boolean for whether the button is pressed.
+char uid[32];                                                                         // Create a 32 byte array for UID (well over what it needs).
 
 void setup()
 {
@@ -49,8 +50,11 @@ void setup()
   /* Confirmations for data, display in terminal. */
   Serial.println(F("<Program Successfully Setup>"));                                  // State success of program setting up.
   Serial.println(F("This program is intended to scan Mifare Ultralight Cards."));     // Specify acceptable card types in serial window.
-  Serial.println(F("Scan card to see data as follows: UID and PICC Type."));           // Give directions in Serial Window for what to scan.
-  Serial.println();
+  Serial.println(F("Scan card to see data as follows: UID and PICC Type."));          // Give directions in Serial Window for what to scan.
+  Serial.println();                                                                   // Add another clear line for cleanliness.
+
+  for (uint8_t i; i < 32; i++)
+    uid[i] = NULL;
 }
 
 void loop()
@@ -81,10 +85,13 @@ void loop()
     return;
   }
 
+  resetAll();
+
   /* Read Card UID and print. */
   Serial.print(F("Card UID (Hex):"));
   printHex(rfid.uid.uidByte, rfid.uid.size);  // Print in HEX
   Serial.println();
+
   Serial.print(F("Card UID (Dec):"));
   printDec(rfid.uid.uidByte, rfid.uid.size);  // Print in DEC
   Serial.println();
