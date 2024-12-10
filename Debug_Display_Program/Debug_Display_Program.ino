@@ -21,9 +21,11 @@
 #define ST7735_SS_PIN     21  // SS/SDA Pin Location for TFT ST7735 (TST_CS)
 #define ST7735_DC_PIN     22  // DC Pin Location for TFT ST7735 (D/C)
 #define ST7735_RST_PIN    2   // RST Pin Location for TFT ST7735
+#define BUTTON_PIN        16  // Pin Location for Button Input
 
 Adafruit_ST7735 led = Adafruit_ST7735(ST7735_SS_PIN, ST7735_DC_PIN, ST7735_RST_PIN);  // Creating class for TFT ST7735 Display
 MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 Module
+bool isButtonPressed = 0;                                                             // Create a boolean for whether the button is pressed.
 
 void setup()
 {
@@ -33,9 +35,14 @@ void setup()
   Serial.println();                                 // Clear the line for beginning of serial output.
   Serial.println(F("<RC522 Successfully Setup>"));  // Display initialization success for RC522 to serial window.
 
+  pinMode(BUTTON_PIN, INPUT);                 // Set button pin for input data.
+  Serial.println(F("<Button Configured>"));   // Print that the button is configured.
+
   led.initR(INITR_BLACKTAB);                                        // Initializion for the TFT ST7735 display.
   led.fillScreen(ST77XX_BLACK);                                     // Set the TFT ST7735 display to full black.
-  drawTextAt(0, 0, "Press the button to scan.", ST77XX_WHITE);  // Display starting prompt to TFT ST7735 display.
+  drawTextAt(0, 0, "Button Enabled.", ST77XX_WHITE);                // Display starting prompt to TFT ST7735 display.
+  drawTextAt(0, 20, "Press button to", ST77XX_WHITE);               // Display starting prompt to TFT ST7735 display.
+  drawTextAt(0, 30, "begin scanning.", ST77XX_WHITE);               // Display starting prompt to TFT ST7735 display.
   Serial.println(F("<TFT ST7735 Successfully Setup>"));             // Display initialization success for TFT ST7735 to serial window.
 
   /* Confirmations for data, display in terminal. */
@@ -46,6 +53,17 @@ void setup()
 
 void loop()
 {
+  while (isButtonPressed == LOW)    // Button reads as LOW, 0, and false.
+  {
+    isButtonPressed = digitalRead(BUTTON_PIN);
+
+    if (isButtonPressed)
+      break;
+
+    Serial.println(F("Button not pressed. Waiting 750 ms before checking again."));
+    delay(750);
+  }
+
   /* Test if card is still there. */
   if (!rfid.PICC_IsNewCardPresent())     // Check if the card is present. If this fails, return to start of loop.
   {
@@ -72,7 +90,8 @@ void loop()
   MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
   Serial.println(rfid.PICC_GetTypeName(piccType));
 
-
+  delay(2000);                // Delay 2 seconds after reading information to prevent reads again.
+  isButtonPressed = false;    // Default the button back to not pressed.
 }
 
 /* Functions for displaying text and/or shapes to the TFT ST7735 Display. */
