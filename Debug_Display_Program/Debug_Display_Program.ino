@@ -26,7 +26,7 @@
 Adafruit_ST7735 led = Adafruit_ST7735(ST7735_SS_PIN, ST7735_DC_PIN, ST7735_RST_PIN);  // Creating class for TFT ST7735 Display
 MFRC522 rfid(RC522_SS_PIN, RC522_RST_PIN);                                            // Creating class for RC522 Module
 bool isButtonPressed = 0;                                                             // Create a boolean for whether the button is pressed.
-char uid[10];                                                                         // Create a 32 byte array for UID (well over what it needs).
+char uid[32];                                                                         // Create a 32 byte array for UID (well over what it needs).
 
 void setup()
 {
@@ -86,12 +86,6 @@ void loop()
   }
 
   resetAll();
-  for (uint8_t i = 0; i < rfid.uid.size; i++)
-    uid[i] = (char)&rfid.uid.uidByte[i];
-  // DEBUG CODE
-  Serial.println();
-  for (uint8_t i = 0; i < rfid.uid.size; i++)
-    Serial.print(uid[i]);
 
   /* Print Card UID in HEX */
   Serial.print(F("Card UID (Hex):"));
@@ -158,6 +152,17 @@ void resetAll()
 }
 
 /* Functions for dumping information from byte arrays, specifically for RC522 module. */
+/* ------------------------------ */
+/* convertByte - converts a byte  */
+/* array to characters for use in */
+/* other functions                 */
+/* ------------------------------ */
+void convertByte(byte *buffer, byte bufferSize)
+{
+  for (uint8_t i = 0; i < bufferSize; i++)
+    sprintf(&uid[i*2], "%02X", rfid.uid.uidByte[i]);
+}
+
 /* ------------------------------ */
 /* printHex - print to serial     */
 /* window the bytes from a buffer */
